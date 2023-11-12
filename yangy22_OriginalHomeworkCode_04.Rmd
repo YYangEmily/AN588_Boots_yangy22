@@ -2,60 +2,73 @@
 title: "yangy22_OriginalHomeworkCode_04"
 author: "Emily Yang"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  prettydoc::html_pretty:
+    theme: cayman
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Bootstrapping Standard Errors and CIs for Linear Models.
-When we initially discussed the central limit theorem and confidence intervals, we showed how we could use bootstrapping to estimate standard errors and confidence intervals around certain parameter values, like the mean. Using bootstrapping, we could also do the same for estimating standard errors and CIs around regression parameters, such as β
- coefficients.
+## Bootstrapping Standard Errors and CIs for Linear Models.
 
-[1] Using the “KamilarAndCooperData.csv” dataset, run a linear regression looking at log(HomeRange_km2) in relation to log(Body_mass_female_mean) and report your β coeffiecients (slope and intercept).
+When we initially discussed the central limit theorem and confidence intervals, we showed how we could use bootstrapping to estimate standard errors and confidence intervals around certain parameter values, like the mean. Using bootstrapping, we could also do the same for estimating standard errors and CIs around regression parameters, such as β coefficients.
+
+## [1] Using the “KamilarAndCooperData.csv” dataset, run a linear regression looking at log(HomeRange_km2) in relation to log(Body_mass_female_mean) and report your β coeffiecients (slope and intercept).
 
 ```{r}
 library(curl)
 f <- curl("https://raw.githubusercontent.com/fuzzyatelin/fuzzyatelin.github.io/master/AN588_Fall23/KamilarAndCooperData.csv")
 d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-n <- lm(data=d, log(HomeRange_km2) ~ log(Body_mass_female_mean))
-n
+n <- lm(data=d, log(HomeRange_km2) ~ log(Body_mass_female_mean)) # set up model
+summary(n)
+
+ci <- confint(n, level = 0.95)  # CI of lm()
+ci
 ```
 Coefficients are slope = 1.036 and intercept = -9.441.
 
 
-[2] Then, use bootstrapping to sample from your data 1000 times with replacement, each time fitting the same model and calculating the same coefficients. This generates a sampling distribution for each β coefficient.
+## [2] Then, use bootstrapping to sample from your data 1000 times with replacement, each time fitting the same model and calculating the same coefficients. This generates a sampling distribution for each β coefficient.
 
 
 ```{r}
 set.seed(0)
 library(boot)
 
-#define function to calculate R-squared
-beta_function <- function(formula, data, indices) {
-  d <- data[indices,] #allows boot to select sample
+#define function to calculate fitted regression coefficients
+coef_function <- function(formula, data, indices) {
+  d <- d[indices,] #allows boot to select sample
   fit <- lm(formula, data=d) #fit regression model
-  return(coef(fit)) #return coefficient of model
+  return(coef(fit)) #return coefficient estimates of model
 }
-#perform bootstrapping with 1000 replications
-reps <- boot(data=d, statistic=beta_function, R=1000, formula=log(HomeRange_km2) ~ log(Body_mass_female_mean))
 
-#view results of bootstrapping
+#perform bootstrapping with 2000 replications
+reps <- boot(data=d, statistic=coef_function, R=1000, formula=log(HomeRange_km2) ~ log(Body_mass_female_mean))
+
+#view results of boostrapping
 reps
-
 ```
 
-Estimate the standard error for each of your β coefficients as the standard deviation of the sampling distribution from your bootstrap and determine the 95% CI for each of your β coefficients based on the appropriate quantiles from your sampling distribution.
+## Estimate the standard error for each of your β coefficients as the standard deviation of the sampling distribution from your bootstrap and determine the 95% CI for each of your β coefficients based on the appropriate quantiles from your sampling distribution.
 
 ```{r}
 
-boot.ci(reps, type="bca", index=1) #intercept CI
-boot.ci(reps, type="bca", index=2) # slope CI
+boot.ci(reps, type="norm", index=1) #intercept CI
+boot.ci(reps, type="norm", index=2) # slope CI
 ```
 
 
-How does the former compare to the SE estimated from your entire dataset using the formula for standard error implemented in lm()?
+## How does the former compare to the SE estimated from your entire dataset using the formula for standard error implemented in lm()?<br>
 
-How does the latter compare to the 95% CI estimated from your entire dataset?
+Standard error of bootstrapping beta coefficients is 0.5925906 and 0.0760274 which is slightly better than standard error from lm() of 0.67293 and 0.08488. <br>
+
+## How does the latter compare to the 95% CI estimated from your entire dataset? <br> 
+
+The bootstrapping CI is intercept of -10.614 to -8.291 and slope of 0.890 to  1.188. The CI of the entire dataset is intercept of -10.7720889 to -8.110374 and slope of 0.8685707 to 1.204292. The CI from bootstrapping is tighter than the CI of the whole dataset. 
+
+
+https://www.statology.org/bootstrapping-in-r/
