@@ -1,5 +1,5 @@
 ---
-title: "yangy22_OriginalHomeworkCode_04"
+title: "yangy22_OriginalHomeworkCode_05"
 author: "Emily Yang"
 date: "`r Sys.Date()`"
 output: 
@@ -68,7 +68,7 @@ Standard error of bootstrapping beta coefficients is 0.5925906 and 0.0760274 whi
 
 ## How does the latter compare to the 95% CI estimated from your entire dataset? <br> 
 
-The bootstrapping CI is intercept of -10.614 to -8.291 and slope of 0.890 to  1.188. The CI of the entire dataset is intercept of -10.7720889 to -8.110374 and slope of 0.8685707 to 1.204292. The CI from bootstrapping is tighter than the CI of the whole dataset. 
+The bootstrapping CI is intercept of -10.614 to -8.291 and slope of 0.890 to  1.188. The CI of the entire dataset is intercept of -10.7720889 to -8.110374 and slope of 0.8685707 to 1.204292. The CI from bootstrapping is tighter than the CI of the whole dataset. <br>
 
 
 https://www.statology.org/bootstrapping-in-r/
